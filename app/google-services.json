@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "636627177326",
+    "project_id": "proyectochatmovil-451",
+    "storage_bucket": "proyectochatmovil-451.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:636627177326:android:bd9f1b8424789b8546fb7f",
+        "android_client_info": {
+          "package_name": "com.example.proyectochatmovil"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCFphbgi0lF0luH5PnIhueJdeoPs8aqArg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

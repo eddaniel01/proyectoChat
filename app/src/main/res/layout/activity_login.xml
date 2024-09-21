@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".LoginActivity">
+
+    <TextView
+        android:id="@+id/textoslogin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Bienvenido Chat a\nICC-451\n\n Registrate"
+        android:textStyle="italic"
+        android:textAlignment="center"
+        android:layout_marginTop="15dp"
+        android:textSize="25sp" />
+
+    <ImageView
+        android:id="@+id/imagenlogin"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_below="@+id/textoslogin"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:src="@drawable/chaticc"/>
+
+    <!-- Campo de texto para ingresar el correo -->
+    <EditText
+        android:id="@+id/correo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="30dp"
+        android:layout_below="@+id/imagenlogin"
+        android:layout_marginTop="30dp"
+        android:hint="Ingresar correo"
+        android:inputType="textEmailAddress"/>
+
+    <!-- Campo de texto para ingresar la contraseña -->
+    <EditText
+        android:id="@+id/contrasena"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="30dp"
+        android:layout_below="@+id/correo"
+        android:layout_marginTop="20dp"
+        android:hint="Ingresar contraseña"
+        android:inputType="textPassword"/>
+
+    <!-- Botón para enviar el correo y la contraseña -->
+    <Button
+        android:id="@+id/enviar_login"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="30dp"
+        android:layout_below="@+id/contrasena"
+        android:layout_marginTop="20dp"
+        android:text="Iniciar sesión"
+        android:textSize="18dp"/>
+
+    <Button
+        android:id="@+id/registrar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="30dp"
+        android:layout_below="@+id/enviar_login"
+        android:layout_marginTop="20dp"
+        android:text="Registrate"
+        android:textSize="18dp"/>
+
+</RelativeLayout>
