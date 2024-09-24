@@ -53,6 +53,7 @@ public class LoginActivity extends AppCompatActivity {
         // Iniciar sesión con Firebase
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
+                    System.out.println(task.isSuccessful());
                     if (task.isSuccessful()) {
                         FirebaseUser user = mAuth.getCurrentUser();
                         Toast.makeText(LoginActivity.this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();
