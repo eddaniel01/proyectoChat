@@ -1,33 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:padding="8dp"
-    android:layout_height="match_parent">
-    
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8dp">
+
     <RelativeLayout
-        android:layout_width="300dp"
-        android:layout_alignParentEnd="true"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true">
-        
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/imagen_deperfil"
-            android:visibility="gone"/>
+        android:layout_gravity="end"
+        android:background="@drawable/background_right"
+        android:padding="8dp">
 
         <TextView
+            android:id="@+id/mostrar_mensaje"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/background_right"
             android:text="Hola"
-            android:layout_alignParentEnd="true"
-            android:id="@+id/mostrar_mensaje"
             android:textSize="18sp"
             android:textColor="#fff"
-            android:padding="8dp"
-            android:layout_alignParentRight="true"/>
-        
+            android:padding="8dp"/>
     </RelativeLayout>
 
-</RelativeLayout>
+</LinearLayout>

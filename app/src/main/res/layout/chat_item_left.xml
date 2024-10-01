@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="300dp"
-    android:padding="8dp"
-    android:layout_height="wrap_content">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8dp">
 
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:id="@+id/imagen_deperfil"
-        android:src="@mipmap/ic_launcher"/>
-
-    <TextView
+    <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@+id/imagen_deperfil"
-        android:layout_marginLeft="5dp"
-        android:text="Hola"
-        android:id="@+id/mostrar_mensaje"
-        android:textSize="18sp"
-        android:padding="8dp"
-        android:background="@drawable/background_left"/>
+        android:layout_gravity="start"
+        android:background="@drawable/background_left"
+        android:padding="8dp">
 
-</RelativeLayout>
+        <TextView
+            android:id="@+id/mostrar_mensaje"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mensaje recibido"
+            android:textSize="18sp"
+            android:textColor="#000"
+            android:padding="8dp"/>
+    </RelativeLayout>
+
+</LinearLayout>
