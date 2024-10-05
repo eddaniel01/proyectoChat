@@ -2,6 +2,7 @@ package com.example.proyectochatmovil;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Switch;
@@ -119,6 +120,15 @@ public class InicioActivity extends AppCompatActivity {
      int id= item.getItemId();
 
      if (id == R.id.cerrar_sesion){
+         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+         if (user != null) {
+             DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Users").child(user.getUid());
+             ref.child("fcmToken").removeValue().addOnCompleteListener(task -> {
+                 if (task.isSuccessful()) {
+                     Log.d("FCM", "Token FCM eliminado de la base de datos");
+                 }
+             });
+         }
          FirebaseAuth.getInstance().signOut();
          startActivity(new Intent(InicioActivity.this, PrincipalActivity.class));
          finish();
