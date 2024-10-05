@@ -5,6 +5,7 @@ public class User {
     private String id;
     private String imageURL;
     private String username;
+    private String fcmToken;
 
     public User(String id, String imageURL, String username) {
         this.id = id;
@@ -39,5 +40,13 @@ public class User {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getFcmToken() {
+        return fcmToken;
+    }
+
+    public void setFcmToken(String fcmToken) {
+        this.fcmToken = fcmToken;
     }
 }
