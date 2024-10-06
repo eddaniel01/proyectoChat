@@ -1,14 +1,19 @@
 package com.example.proyectochatmovil;
 
+import android.content.ContentResolver;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,6 +30,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import org.json.JSONObject;
 
@@ -50,7 +57,7 @@ public class MessageActivity extends AppCompatActivity {
     FirebaseUser fuser;
     DatabaseReference reference;
 
-    ImageButton btn_enviar;
+    ImageButton btn_enviar, btn_enviar_imagen;
     EditText texto_enviado;
 
     MessageAdapter messageAdapter;
@@ -59,6 +66,9 @@ public class MessageActivity extends AppCompatActivity {
     RecyclerView recyclerView;
 
     Intent intent;
+
+    // ActivityResultLauncher para seleccionar una imagen
+    private ActivityResultLauncher<Intent> imagePickerLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,22 +93,37 @@ public class MessageActivity extends AppCompatActivity {
         imagen_deperfil = findViewById(R.id.imagen_deperfil);
         username = findViewById(R.id.username);
         btn_enviar = findViewById(R.id.btn_enviar);
+        btn_enviar_imagen = findViewById(R.id.btn_enviar_imagen);
         texto_enviado = findViewById(R.id.texto_enviado);
 
         intent = getIntent();
         final String userid = intent.getStringExtra("userid");
         fuser = FirebaseAuth.getInstance().getCurrentUser();
 
+        // Inicializa el ActivityResultLauncher para la selección de imágenes
+        imagePickerLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        Uri imageUri = result.getData().getData();
+                        enviarImagen(fuser.getUid(), userid, imageUri);
+                    }
+                }
+        );
+
         // Send message button listener
         btn_enviar.setOnClickListener(view -> {
             String msj = texto_enviado.getText().toString();
             if (!msj.equals("")) {
-                enviarMensaje(fuser.getUid(), userid, msj);
+                enviarMensaje(fuser.getUid(), userid, msj, false);
             } else {
                 Toast.makeText(MessageActivity.this, "No puedes enviar mensajes sin contenido.", Toast.LENGTH_SHORT).show();
             }
             texto_enviado.setText("");
         });
+
+        // Button to select an image
+        btn_enviar_imagen.setOnClickListener(view -> openImagePicker());
 
         // Fetch user info from Firebase
         reference = FirebaseDatabase.getInstance().getReference("Users").child(userid);
@@ -126,7 +151,45 @@ public class MessageActivity extends AppCompatActivity {
         });
     }
 
-    private void enviarMensaje(String emisor, String receptor, String mensaje) {
+    private void openImagePicker() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        imagePickerLauncher.launch(Intent.createChooser(intent, "Selecciona una imagen"));
+    }
+
+    //TODO: IMPLEMENTAR LOGICA PARA SUBIR IMAGEN A FIREBASE Y OBTENER LA URL
+    private void enviarImagen(String emisor, String receptor, Uri imageUri) {
+        // Referencia a Firebase Storage
+        StorageReference storageReference = FirebaseStorage.getInstance().getReference("chat_images");
+
+        // Generar un nombre de archivo único basado en la marca de tiempo
+        StorageReference fileReference = storageReference.child(System.currentTimeMillis() + "." + getFileExtension(imageUri));
+
+        // Subir la imagen al almacenamiento
+        fileReference.putFile(imageUri).addOnSuccessListener(taskSnapshot -> {
+            // Obtener la URL de descarga cuando la subida sea exitosa
+            fileReference.getDownloadUrl().addOnSuccessListener(uri -> {
+                String imageUrl = uri.toString(); // Obtener la URL de la imagen
+                // Enviar el mensaje con la URL de la imagen
+                enviarMensaje(emisor, receptor, imageUrl, true);
+            }).addOnFailureListener(e -> {
+                Toast.makeText(MessageActivity.this, "Error al obtener la URL de la imagen: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            });
+        }).addOnFailureListener(e -> {
+            Toast.makeText(MessageActivity.this, "Error al subir la imagen: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    // Método para obtener la extensión del archivo
+    private String getFileExtension(Uri uri) {
+        ContentResolver contentResolver = getContentResolver();
+        MimeTypeMap mime = MimeTypeMap.getSingleton();
+        return mime.getExtensionFromMimeType(contentResolver.getType(uri));
+    }
+
+
+    private void enviarMensaje(String emisor, String receptor, String mensaje, boolean esImagen) {
 
         DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference();
         HashMap<String, Object> hashMap = new HashMap<>();
@@ -134,6 +197,7 @@ public class MessageActivity extends AppCompatActivity {
         hashMap.put("emisor", emisor);
         hashMap.put("receptor", receptor);
         hashMap.put("mensaje", mensaje);
+        hashMap.put("tipo", esImagen ? "imagen" : "texto");
 
         reference1.child("Chats").push().setValue(hashMap).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {

@@ -28,14 +28,14 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
 
     private Context mContex;
     private List<Chat> mChat;
-    private String imageurl;
+    private String imageUrl;
 
     FirebaseUser fuser;
 
-    public MessageAdapter (Context mContex, List<Chat> mChat, String imageurl){
+    public MessageAdapter (Context mContex, List<Chat> mChat, String imageUrl){
         this.mChat = mChat;
         this.mContex = mContex;
-        this.imageurl = imageurl;
+        this.imageUrl = imageUrl;
     }
 
     @NonNull
@@ -56,13 +56,22 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
 
         Chat chat = mChat.get(position);
 
-        holder.mostrar_mensaje.setText(chat.getMensaje());
+        if (chat.getImageUrl() != null && !chat.getImageUrl().equals("")) {
+            holder.mostrar_mensaje.setVisibility(View.GONE); // Ocultar el texto si es imagen
+            holder.mostrar_imagen.setVisibility(View.VISIBLE); // Mostrar ImageView
+            Glide.with(mContex).load(chat.getImageUrl()).into(holder.mostrar_imagen); // Cargar imagen
+        } else {
+            holder.mostrar_mensaje.setText(chat.getMensaje()); // Mostrar mensaje de texto
+            holder.mostrar_mensaje.setVisibility(View.VISIBLE);
+            holder.mostrar_imagen.setVisibility(View.GONE); // Ocultar ImageView si es texto
+        }
 
-        if (imageurl != null && imageurl.equals("default")) {
+        // Cargar imagen de perfil
+        if (imageUrl != null && imageUrl.equals("default")) {
             holder.imagen_deperfil.setImageResource(R.mipmap.ic_launcher);
-        } else if (imageurl != null) {
-            Glide.with(mContex).load(imageurl).into(holder.imagen_deperfil);
-        } 
+        } else if (imageUrl != null) {
+            Glide.with(mContex).load(imageUrl).into(holder.imagen_deperfil);
+        }
 
 
 
@@ -96,12 +105,14 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
 
         public TextView mostrar_mensaje;
         public ImageView imagen_deperfil;
+        public ImageView mostrar_imagen;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
             mostrar_mensaje = itemView.findViewById(R.id.mostrar_mensaje);
             imagen_deperfil= itemView.findViewById(R.id.imagen_deperfil);
+            mostrar_imagen = itemView.findViewById(R.id.mostrar_imagen);
 
         }
     }
