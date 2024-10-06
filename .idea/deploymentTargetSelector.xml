@@ -4,7 +4,7 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DIALOG" />
-        <DropdownSelection timestamp="2024-10-05T19:40:22.258277Z">
+        <DropdownSelection timestamp="2024-10-06T02:35:54.843509300Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\ASROCK\.android\avd\Pixel_7_Pro_API_35_1.avd" />
@@ -15,12 +15,12 @@
           <targets>
             <Target type="DEFAULT_BOOT">
               <handle>
-                <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\ASROCK\.android\avd\Pixel_7_Pro_API_35_1.avd" />
+                <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\ASROCK\.android\avd\Pixel_7_Pro_API_35_23.avd" />
               </handle>
             </Target>
             <Target type="DEFAULT_BOOT">
               <handle>
-                <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\ASROCK\.android\avd\Pixel_7_Pro_API_35_23.avd" />
+                <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\ASROCK\.android\avd\Pixel_7_Pro_API_35_1.avd" />
               </handle>
             </Target>
           </targets>

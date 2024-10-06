@@ -28,9 +28,8 @@ import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONObject;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -91,7 +90,6 @@ public class MessageActivity extends AppCompatActivity {
         fuser = FirebaseAuth.getInstance().getCurrentUser();
 
         // Send message button listener
-        // Send message button listener
         btn_enviar.setOnClickListener(view -> {
             String msj = texto_enviado.getText().toString();
             if (!msj.equals("")) {
@@ -129,6 +127,7 @@ public class MessageActivity extends AppCompatActivity {
     }
 
     private void enviarMensaje(String emisor, String receptor, String mensaje) {
+
         DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference();
         HashMap<String, Object> hashMap = new HashMap<>();
 
@@ -138,39 +137,52 @@ public class MessageActivity extends AppCompatActivity {
 
         reference1.child("Chats").push().setValue(hashMap).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                // Envía la notificación si el mensaje se guardó exitosamente
-                enviarNotificacion(receptor, mensaje);
+                enviarNotificacion(receptor, mensaje, emisor);
             } else {
-                // Maneja el error si no se pudo guardar
-                Toast.makeText(MessageActivity.this, "Error al enviar el mensaje.", Toast.LENGTH_SHORT).show();
+                Log.e("MessageActivity", "Error al guardar el mensaje.");
             }
         });
     }
 
-    private void enviarNotificacion(String receptorId, String mensaje) {
-        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("Users").child(receptorId);
-        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+    private void enviarNotificacion(String receptorId, String mensaje, String emisorId) {
+        DatabaseReference emisorRef = FirebaseDatabase.getInstance().getReference("Users").child(emisorId);
+        DatabaseReference receptorRef = FirebaseDatabase.getInstance().getReference("Users").child(receptorId);
+
+        // Primero, obtén el nombre del emisor
+        emisorRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                String token = snapshot.child("fcmToken").getValue(String.class); // Asegúrate de que el campo se llama fcmToken
-                String emisorNombre = username.getText().toString(); // Obtiene el nombre del emisor
-                if (token != null) {
-                    String title = emisorNombre != null ? emisorNombre : "Nuevo Mensaje"; // Usar nombre del emisor
-                    enviarNotificacionFCM(token, title, mensaje);
-                } else {
-                    Toast.makeText(MessageActivity.this, "No se encontró el token.", Toast.LENGTH_SHORT).show();
-                }
+                String emisorNombre = snapshot.child("username").getValue(String.class); // Obtener el nombre del emisor
+
+                // Luego, obtén el token del receptor
+                receptorRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        String token = snapshot.child("fcmToken").getValue(String.class); // Obtener el token FCM del receptor
+
+                        if (token != null) {
+                            String title = emisorNombre != null ? emisorNombre : "Nuevo Mensaje"; // Usar el nombre del emisor como título
+                            enviarNotificacionFCM(token, title, mensaje); // Enviar la notificación
+                        } else {
+                            Toast.makeText(MessageActivity.this, "No se encontró el token del receptor.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Toast.makeText(MessageActivity.this, "No se pudo obtener el token del receptor.", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(MessageActivity.this, "No se pudo obtener el token.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MessageActivity.this, "No se pudo obtener el nombre del emisor.", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     private String getAccessToken() throws IOException {
-        // Acceder al archivo JSON desde la carpeta assets
         InputStream serviceAccount = getApplicationContext().getAssets().open("your-service-account-file.json");
 
         GoogleCredentials googleCredentials = GoogleCredentials
@@ -184,35 +196,26 @@ public class MessageActivity extends AppCompatActivity {
     private void enviarNotificacionFCM(String token, String title, String body) {
         new Thread(() -> {
             try {
-                // Obtén el token de acceso
                 String accessToken = getAccessToken();
 
-                // URL de la API FCM HTTP v1
                 String fcmApiUrl = "https://fcm.googleapis.com/v1/projects/proyectochatmovil-451/messages:send";
 
-                // Crear cliente HTTP
                 OkHttpClient client = new OkHttpClient();
 
-                // Crear el cuerpo del mensaje
                 JSONObject messageObject = new JSONObject();
                 JSONObject notificationObject = new JSONObject();
                 JSONObject messagePayload = new JSONObject();
 
-                // Cuerpo de la notificación
                 notificationObject.put("title", title);
                 notificationObject.put("body", body);
 
-                // El token del dispositivo receptor
                 messagePayload.put("token", token);
                 messagePayload.put("notification", notificationObject);
 
-                // Mensaje principal que envía la API de FCM
                 messageObject.put("message", messagePayload);
 
-                // Crear el cuerpo de la solicitud HTTP
                 RequestBody requestBody = RequestBody.create(messageObject.toString(), MediaType.get("application/json; charset=utf-8"));
 
-                // Crear la solicitud HTTP
                 Request request = new Request.Builder()
                         .url(fcmApiUrl)
                         .post(requestBody)
@@ -220,7 +223,6 @@ public class MessageActivity extends AppCompatActivity {
                         .addHeader("Content-Type", "application/json")
                         .build();
 
-                // Ejecutar la solicitud
                 try (Response response = client.newCall(request).execute()) {
                     if (response.isSuccessful()) {
                         Log.d("MessageActivity", "Notificación enviada exitosamente.");
@@ -234,8 +236,8 @@ public class MessageActivity extends AppCompatActivity {
         }).start();
     }
 
-
     private void leerMensaje(String myid, String userid, String imageurl) {
+
         mchat = new ArrayList<>();
         reference = FirebaseDatabase.getInstance().getReference("Chats");
 
@@ -252,14 +254,14 @@ public class MessageActivity extends AppCompatActivity {
                     }
                 }
 
-                // Set the adapter after data is populated
+                Log.d("MessageActivity", "Mensajes leídos: " + mchat.size());
                 messageAdapter = new MessageAdapter(MessageActivity.this, mchat, imageurl);
                 recyclerView.setAdapter(messageAdapter);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                // Handle database errors
+                Log.e("MessageActivity", "Error al leer los mensajes: ", error.toException());
             }
         });
     }

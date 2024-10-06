@@ -25,9 +25,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class ContactosFragment extends Fragment {
-
 
     private RecyclerView recyclerView;
     private UserAdapter userAdapter;
@@ -37,7 +35,6 @@ public class ContactosFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_contactos, container, false);
-
 
         recyclerView = view.findViewById(R.id.recyclerview_contactos);
         recyclerView.setHasFixedSize(true);
@@ -51,7 +48,6 @@ public class ContactosFragment extends Fragment {
     }
 
     private void readUsers() {
-
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users");
 
@@ -60,13 +56,14 @@ public class ContactosFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
                 mUsers.clear();
-                for (DataSnapshot snapshot1 : snapshot.getChildren()){
+                for (DataSnapshot snapshot1 : snapshot.getChildren()) {
                     User user = snapshot1.getValue(User.class);
 
-                    assert user != null;
-                    assert firebaseUser != null;
-                    if (!user.getId().equals(firebaseUser.getUid())){
-                        mUsers.add(user);
+                    // Verificación adicional para evitar NullPointerException
+                    if (user != null && firebaseUser != null && user.getId() != null) {
+                        if (!user.getId().equals(firebaseUser.getUid())) {
+                            mUsers.add(user);
+                        }
                     }
                 }
 
@@ -76,7 +73,7 @@ public class ContactosFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
+                // Manejo del error
             }
         });
     }
