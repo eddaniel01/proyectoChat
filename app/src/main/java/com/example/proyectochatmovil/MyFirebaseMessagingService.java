@@ -42,13 +42,13 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         String channelId = "chat_notifications";
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channelId)
-                .setSmallIcon(R.mipmap.ic_launcher) // Cambia esto al icono correcto de tu app
+                .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle(title)
                 .setContentText(message)
                 .setAutoCancel(true)
                 .setContentIntent(pendingIntent);
 
-        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        NotificationManager notificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
 
         // Para Android O y versiones superiores, el canal ya debería estar creado en MainActivity
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

@@ -19,7 +19,8 @@
             android:text="Mensaje recibido"
             android:textSize="18sp"
             android:textColor="#000"
-            android:padding="8dp"/>
+            android:padding="8dp"
+            android:visibility="gone"/>
 
         <ImageView
             android:id="@+id/mostrar_imagen"

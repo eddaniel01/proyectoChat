@@ -19,7 +19,8 @@
             android:text="Hola"
             android:textSize="18sp"
             android:textColor="#fff"
-            android:padding="8dp"/>
+            android:padding="8dp"
+            android:visibility="gone"/>
 
         <ImageView
             android:id="@+id/mostrar_imagen"

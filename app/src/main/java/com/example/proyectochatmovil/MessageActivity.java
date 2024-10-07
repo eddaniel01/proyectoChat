@@ -69,6 +69,7 @@ public class MessageActivity extends AppCompatActivity {
 
     // ActivityResultLauncher para seleccionar una imagen
     private ActivityResultLauncher<Intent> imagePickerLauncher;
+    private Uri imageUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,8 +106,8 @@ public class MessageActivity extends AppCompatActivity {
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                        Uri imageUri = result.getData().getData();
-                        enviarImagen(fuser.getUid(), userid, imageUri);
+                        imageUri = result.getData().getData();  // Guarda la Uri de la imagen
+                        Toast.makeText(MessageActivity.this, "Imagen seleccionada. Haz clic en Enviar para compartirla.", Toast.LENGTH_SHORT).show();
                     }
                 }
         );
@@ -114,11 +115,18 @@ public class MessageActivity extends AppCompatActivity {
         // Send message button listener
         btn_enviar.setOnClickListener(view -> {
             String msj = texto_enviado.getText().toString();
-            if (!msj.equals("")) {
+
+            if (imageUri != null) {
+                // Si hay una imagen seleccionada, súbela y envíala
+                enviarImagen(fuser.getUid(), userid, imageUri);
+                imageUri = null;  // Resetea la Uri después de enviar la imagen
+            } else if (!msj.equals("")) {
+                // Si es un mensaje de texto, envíalo
                 enviarMensaje(fuser.getUid(), userid, msj, false);
             } else {
                 Toast.makeText(MessageActivity.this, "No puedes enviar mensajes sin contenido.", Toast.LENGTH_SHORT).show();
             }
+
             texto_enviado.setText("");
         });
 
@@ -170,10 +178,12 @@ public class MessageActivity extends AppCompatActivity {
         fileReference.putFile(imageUri).addOnSuccessListener(taskSnapshot -> {
             // Obtener la URL de descarga cuando la subida sea exitosa
             fileReference.getDownloadUrl().addOnSuccessListener(uri -> {
+
                 String imageUrl = uri.toString(); // Obtener la URL de la imagen
-                // Enviar el mensaje con la URL de la imagen
-                enviarMensaje(emisor, receptor, imageUrl, true);
+                enviarMensaje(emisor, receptor, imageUrl, true); // Enviar el mensaje con la URL de la imagen
+
             }).addOnFailureListener(e -> {
+
                 Toast.makeText(MessageActivity.this, "Error al obtener la URL de la imagen: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             });
         }).addOnFailureListener(e -> {
@@ -212,7 +222,6 @@ public class MessageActivity extends AppCompatActivity {
         DatabaseReference emisorRef = FirebaseDatabase.getInstance().getReference("Users").child(emisorId);
         DatabaseReference receptorRef = FirebaseDatabase.getInstance().getReference("Users").child(receptorId);
 
-        // Primero, obtén el nombre del emisor
         emisorRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -225,7 +234,7 @@ public class MessageActivity extends AppCompatActivity {
                         String token = snapshot.child("fcmToken").getValue(String.class); // Obtener el token FCM del receptor
 
                         if (token != null) {
-                            String title = emisorNombre != null ? emisorNombre : "Nuevo Mensaje"; // Usar el nombre del emisor como título
+                            String title = emisorNombre != null ? emisorNombre : "Nuevo Mensaje";
                             enviarNotificacionFCM(token, title, mensaje); // Enviar la notificación
                         } else {
                             Toast.makeText(MessageActivity.this, "No se encontró el token del receptor.", Toast.LENGTH_SHORT).show();
@@ -270,8 +279,15 @@ public class MessageActivity extends AppCompatActivity {
                 JSONObject notificationObject = new JSONObject();
                 JSONObject messagePayload = new JSONObject();
 
-                notificationObject.put("title", title);
-                notificationObject.put("body", body);
+                String palabra = body;
+
+                if (palabra.contains("https://firebasestorage.googleapis.com/v0/b/proyectochatmovil-451.appspot.com/o/chat_images%")){
+                    notificationObject.put("title", title);
+                    notificationObject.put("body", "Nueva Imagen");
+                }else {
+                    notificationObject.put("title", title);
+                    notificationObject.put("body", body);
+                }
 
                 messagePayload.put("token", token);
                 messagePayload.put("notification", notificationObject);
