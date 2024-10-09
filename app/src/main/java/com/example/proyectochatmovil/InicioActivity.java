@@ -104,7 +104,35 @@ public class InicioActivity extends AppCompatActivity {
 
         tabLayout.setupWithViewPager(viewPager);
 
+        //Establecer el estado a "online" al crear la actividad
+        updateStatus("online");
+    }
 
+    private void updateStatus(String status) {
+        if (firebaseUser != null) {
+            // Usar el reference previamente inicializado para el usuario actual
+            reference.child("status").setValue(status).addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    Log.d("status", "Estado actualizado a " + status);
+                } else {
+                    Log.e("status", "Error al actualizar el estado");
+                }
+            });
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Marcar como "online" cuando la actividad está activa
+        updateStatus("online");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // Establecer el estado a "offline" cuando la aplicación pasa a segundo plano
+        updateStatus("offline");
     }
 
     @Override
@@ -123,10 +151,20 @@ public class InicioActivity extends AppCompatActivity {
          FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
          if (user != null) {
              DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Users").child(user.getUid());
+
+             ref.child("status").setValue("offline").addOnCompleteListener(taskstatus -> {
+                 if (taskstatus.isSuccessful()) {
+                     Log.d("status", "Estado actualizado a offline");
+                 } else {
+                     Log.e("status", "Error al actualizar el estado");
+                 }
+
+
              ref.child("fcmToken").removeValue().addOnCompleteListener(task -> {
                  if (task.isSuccessful()) {
                      Log.d("FCM", "Token FCM eliminado de la base de datos");
                  }
+             });
              });
          }
          FirebaseAuth.getInstance().signOut();

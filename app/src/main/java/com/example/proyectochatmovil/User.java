@@ -6,11 +6,21 @@ public class User {
     private String imageURL;
     private String username;
     private String fcmToken;
+    private String status;
 
-    public User(String id, String imageURL, String username) {
+    public User(String id, String imageURL, String username, String status) {
         this.id = id;
         this.imageURL = imageURL;
         this.username = username;
+        this.status = status;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public User() {

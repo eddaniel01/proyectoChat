@@ -84,6 +84,7 @@ public class RegistroActivity extends AppCompatActivity {
                             hashMap.put("id", userid);
                             hashMap.put("username", userName);
                             hashMap.put("imageURL", "default");
+                            hashMap.put("status", "offline");
 
                             // Guardar el HashMap en Firebase Realtime Database
                             reference.setValue(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {

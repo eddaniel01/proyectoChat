@@ -37,6 +37,8 @@ public class LoginActivity extends AppCompatActivity {
     private Button btn_login;
 
     FirebaseAuth auth;
+    FirebaseUser firebaseUser;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,7 +79,11 @@ public class LoginActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             Log.d("Login", "Usuario autenticado correctamente");
                             FirebaseUser firebaseUser = auth.getCurrentUser();
+
                             if (firebaseUser != null) {
+                                checkAndInitializeUserStatus(firebaseUser);
+                                String userId = firebaseUser.getUid(); // Obtener el ID del usuario
+
                                 // Obtener el nuevo token de FCM y actualizarlo
                                 FirebaseMessaging.getInstance().getToken().addOnCompleteListener(tokenTask -> {
                                     if (tokenTask.isSuccessful()) {
@@ -89,6 +95,7 @@ public class LoginActivity extends AppCompatActivity {
                                         Log.e("FCM Token", "Error al obtener el token FCM: " + tokenTask.getException().getMessage());
                                     }
                                 });
+                                updateStatus(userId, "online");
                             }
                         } else {
                             Log.e("Login", "Error en la autenticación: " + task.getException().getMessage());
@@ -96,6 +103,31 @@ public class LoginActivity extends AppCompatActivity {
                         }
                     }
                 });
+    }
+
+    private void updateStatus(String userId, String status) {
+
+
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("Users").child(userId);
+        userRef.child("status").setValue(status);
+        userRef.child("status").onDisconnect().setValue("offline");
+    }
+
+    private void checkAndInitializeUserStatus(FirebaseUser user) {
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("Users").child(user.getUid());
+        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                if (!snapshot.hasChild("status")) {
+                    userRef.child("status").setValue("offline");
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                Log.e("Firebase Error", "Error al consultar la base de datos: " + error.getMessage());
+            }
+        });
     }
 
     private void checkExistingToken(String token, String userId) {

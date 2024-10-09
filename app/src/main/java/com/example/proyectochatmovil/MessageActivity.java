@@ -236,8 +236,6 @@ public class MessageActivity extends AppCompatActivity {
                         if (token != null) {
                             String title = emisorNombre != null ? emisorNombre : "Nuevo Mensaje";
                             enviarNotificacionFCM(token, title, mensaje); // Enviar la notificación
-                        } else {
-                            Toast.makeText(MessageActivity.this, "No se encontró el token del receptor.", Toast.LENGTH_SHORT).show();
                         }
                     }
 
